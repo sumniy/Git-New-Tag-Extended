@@ -21,7 +21,7 @@ import git4idea.commands.GitLineHandler
 import git4idea.i18n.GitBundle
 import git4idea.ui.GitReferenceValidator
 import git4idea.util.GitUIUtil
-import kotlinx.coroutines.FlowPreview
+import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
@@ -30,26 +30,23 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
 import javax.swing.DefaultComboBoxModel
+import javax.swing.DefaultListModel
 import javax.swing.JButton
 import javax.swing.JCheckBox
 import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JTextArea
 import javax.swing.JTextField
-import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
-import javax.swing.plaf.basic.BasicComboBoxUI
-import javax.swing.text.JTextComponent
 
-@OptIn(FlowPreview::class)
 class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRoot: VirtualFile?) :
     DialogWrapper(project, true) {
     private var myPanel: JPanel? = null
     private var myGitRootComboBox: JComboBox<Any>? = null
     private var myCurrentBranch: JLabel? = null
-    private var myTagNameTextField: JTextField? = null
     private var myForceCheckBox: JCheckBox? = null
     private var myMessageTextArea: JTextArea? = null
     private var myCommitTextField: JTextField? = null
@@ -59,7 +56,11 @@ class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRo
     private var myGit: Git
     private var myNotifier: VcsNotifier
     private var myExistingTags: List<String> = ArrayList()
-    private var comboBox1: ComboBox<Any>? = null
+    private var myTagNameComboBox: ComboBox<*>? = null
+    private var myTagNameComboBoxTextField: JTextField? = null
+    private var myAddTagButton: JButton? = null
+    private var myAddedTagList: JList<String>? = null
+    private var tagList = DefaultListModel<String>()
 
     init {
         title = GitBundle.message("tag.title")
@@ -79,31 +80,28 @@ class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRo
             validateFields()
         }
         fetchTags()
-        myTagNameTextField!!.document.addDocumentListener(object : DocumentAdapter() {
+
+        myTagNameComboBoxTextField = myTagNameComboBox?.editor?.editorComponent as JTextField
+        myTagNameComboBoxTextField!!.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 validateFields()
             }
         })
-        val ui = comboBox1?.ui as BasicComboBoxUI
-        val editorComponent = comboBox1?.editor?.editorComponent as JTextComponent
-        editorComponent.document.addDocumentListener(object : DocumentAdapter() {
-            override fun textChanged(e: DocumentEvent) {
-                val inputText = editorComponent.text
-                doFilterList(myExistingTags, ".*$inputText.*".toRegex())
-                println(editorComponent.text)
-//                flow {
-//                    emit(1)
-//                    kotlinx.coroutines.delay(1000)
-//                }.debounce(1000)
-            }
-        })
 
-        editorComponent.addFocusListener(object : FocusAdapter() {
+        myTagNameComboBoxTextField!!.addFocusListener(object : FocusAdapter() {
             override fun focusGained(e: FocusEvent?) {
                 super.focusGained(e)
-                comboBox1?.showPopup()
+                myTagNameComboBox?.showPopup()
             }
         })
+        myAddedTagList!!.isVisible = false
+        myAddTagButton!!.addActionListener {
+            tagList.addElement(myTagNameComboBoxTextField!!.text)
+            myAddedTagList!!.model = tagList
+            myTagNameComboBoxTextField!!.text = ""
+            myTagNameComboBox!!.selectedItem = null
+            myAddedTagList!!.isVisible = true
+        }
 
         myCommitTextFieldValidator = GitReferenceValidator(
             project, myGitRootComboBox, myCommitTextField, myValidateButton
@@ -117,17 +115,10 @@ class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRo
         validateFields()
     }
 
-    private fun doFilterList(targetList: List<String>, regex: Regex) {
-        val doFilter = Runnable {
-            val filteredList = targetList.filter { regex.matches(it) }
-            // 자꾸 selectedItem이 자동으로 설정되는데 이 부분을 제거한 클래스를 만들던가 방법을 찾아보기
-            comboBox1?.model = DefaultComboBoxModel(filteredList.toTypedArray())
-        }
-        SwingUtilities.invokeLater(doFilter)
-    }
+
 
     override fun getPreferredFocusedComponent(): JComponent? {
-        return myTagNameTextField
+        return myTagNameComboBoxTextField
     }
 
     fun runAction() {
@@ -156,44 +147,50 @@ class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRo
             messageFile = null
         }
         try {
-            val h = GitLineHandler(myProject, gitRoot, GitCommand.TAG)
-            if (hasMessage) {
-                h.addParameters("-a")
+            if (StringUtils.isNotBlank(myTagNameComboBoxTextField!!.text)) {
+                tagList.addElement(myTagNameComboBoxTextField!!.text)
             }
-            if (myForceCheckBox!!.isEnabled && myForceCheckBox!!.isSelected) {
-                h.addParameters("-f")
-            }
-            if (hasMessage) {
-                h.addParameters("-F")
-                h.addAbsoluteFile(messageFile!!)
-            }
-            h.addParameters(myTagNameTextField!!.text)
-            val `object` = myCommitTextField!!.text.trim { it <= ' ' }
-            if (`object`.length != 0) {
-                h.addParameters(`object`)
-            }
-            val result = myGit.runCommand(h)
-            if (result.success()) {
-                myNotifier.notifySuccess(
-                    GitNotificationIdsHolder.TAG_CREATED,
-                    myTagNameTextField!!.text,
-                    GitBundle.message("git.tag.created.tag.successfully", myTagNameTextField!!.text)
+
+            for (element in tagList.elements()) {
+                val h = GitLineHandler(myProject, gitRoot, GitCommand.TAG)
+                if (hasMessage) {
+                    h.addParameters("-a")
+                }
+                if (myForceCheckBox!!.isEnabled && myForceCheckBox!!.isSelected) {
+                    h.addParameters("-f")
+                }
+                if (hasMessage) {
+                    h.addParameters("-F")
+                    h.addAbsoluteFile(messageFile!!)
+                }
+                h.addParameters(element)
+                val `object` = myCommitTextField!!.text.trim { it <= ' ' }
+                if (`object`.length != 0) {
+                    h.addParameters(`object`)
+                }
+                val result = myGit.runCommand(h)
+                if (result.success()) {
+                    myNotifier.notifySuccess(
+                        GitNotificationIdsHolder.TAG_CREATED,
+                        element,
+                        GitBundle.message("git.tag.created.tag.successfully", element)
+                    )
+                } else {
+                    myNotifier.notifyError(
+                        GitNotificationIdsHolder.TAG_NOT_CREATED,
+                        GitBundle.message("git.tag.could.not.create.tag"),
+                        result.errorOutputAsHtmlString,
+                        true
+                    )
+                }
+                val repository = GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(
+                    gitRoot
                 )
-            } else {
-                myNotifier.notifyError(
-                    GitNotificationIdsHolder.TAG_NOT_CREATED,
-                    GitBundle.message("git.tag.could.not.create.tag"),
-                    result.errorOutputAsHtmlString,
-                    true
-                )
-            }
-            val repository = GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(
-                gitRoot
-            )
-            if (repository != null) {
-                repository.repositoryFiles.refreshTagsFiles()
-            } else {
-                LOG.error("No repository registered for root: " + gitRoot)
+                if (repository != null) {
+                    repository.repositoryFiles.refreshTagsFiles()
+                } else {
+                    LOG.error("No repository registered for root: " + gitRoot)
+                }
             }
         } finally {
             messageFile?.delete()
@@ -201,12 +198,13 @@ class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRo
     }
 
     private fun validateFields() {
-        val text = myTagNameTextField!!.text
+        val text = myTagNameComboBoxTextField!!.text
         if (myExistingTags.contains(text)) {
             myForceCheckBox!!.isEnabled = true
             if (!myForceCheckBox!!.isSelected) {
                 setErrorText(GitBundle.message("tag.error.tag.exists"))
                 isOKActionEnabled = false
+                myAddTagButton!!.isEnabled = false
                 return
             }
         } else {
@@ -216,15 +214,18 @@ class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRo
         if (myCommitTextFieldValidator.isInvalid) {
             setErrorText(GitBundle.message("tag.error.invalid.commit"))
             isOKActionEnabled = false
+            myAddTagButton!!.isEnabled = false
             return
         }
-        if (text.length == 0) {
+        if (text.length == 0 && tagList.isEmpty) {
             setErrorText(null)
             isOKActionEnabled = false
+            myAddTagButton!!.isEnabled = false
             return
         }
         setErrorText(null)
         isOKActionEnabled = true
+        myAddTagButton!!.isEnabled = true
     }
 
     private fun fetchTags() {
@@ -237,8 +238,8 @@ class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRo
                     myProject
                 )
             myExistingTags = tags.distinct()
-            comboBox1?.model = DefaultComboBoxModel(myExistingTags.toTypedArray())
-            comboBox1?.selectedItem = ""
+            myTagNameComboBox?.model = DefaultComboBoxModel(myExistingTags.toTypedArray())
+            myTagNameComboBox?.selectedItem = ""
         } catch (e: VcsException) {
             GitUIUtil.showOperationError(
                 myProject,
