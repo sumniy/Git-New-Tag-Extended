@@ -1,4 +1,4 @@
-package com.kakao.gittagextend
+package com.kakao.gitnewtagextended
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import git4idea.actions.GitRepositoryAction
 import git4idea.i18n.GitBundle
 
-class GitTagExtendAction : GitRepositoryAction() {
+class GitNewTagExtendedAction : GitRepositoryAction() {
     /**
      * {@inheritDoc}
      */
@@ -15,7 +15,7 @@ class GitTagExtendAction : GitRepositoryAction() {
     //    return GitBundle.message("tag.action.name");
     //  }
     override fun getActionName(): String {
-        return "Git Tag Extend"
+        return "Git New Tag Extended"
     }
 
     /**
@@ -26,7 +26,7 @@ class GitTagExtendAction : GitRepositoryAction() {
         gitRoots: List<VirtualFile>,
         defaultRoot: VirtualFile
     ) {
-        val d = GitTagExtendDialog(project, gitRoots, defaultRoot)
+        val d = GitNewTagExtendedDialog(project, gitRoots, defaultRoot)
         if (d.showAndGet()) {
             object : Task.Modal(project, GitBundle.message("tag.progress.title"), true) {
                 override fun run(indicator: ProgressIndicator) {

@@ -1,4 +1,4 @@
-package com.kakao.gittagextend
+package com.kakao.gitnewtagextended
 
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.openapi.project.Project
@@ -9,7 +9,7 @@ import git4idea.commands.GitCommand
 import git4idea.commands.GitLineHandler
 import git4idea.commands.GitLineHandlerListener
 
-object GitTagExtendUtil {
+object GitNewTagExtendedUtil {
 
     private const val MAX_TAG_SIZE = 100
 

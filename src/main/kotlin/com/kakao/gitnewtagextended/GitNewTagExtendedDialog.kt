@@ -1,5 +1,5 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package com.kakao.gittagextend
+package com.kakao.gitnewtagextended
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -42,7 +42,7 @@ import javax.swing.JTextArea
 import javax.swing.JTextField
 import javax.swing.event.DocumentEvent
 
-class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRoot: VirtualFile?) :
+class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defaultRoot: VirtualFile?) :
     DialogWrapper(project, true) {
     private var myPanel: JPanel? = null
     private var myGitRootComboBox: JComboBox<Any>? = null
@@ -232,7 +232,7 @@ class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRo
         try {
             val tags = ProgressManager.getInstance()
                 .runProcessWithProgressSynchronously<List<String>, VcsException>(
-                    { GitTagExtendUtil.getAllTags(myProject, gitRoot) },
+                    { GitNewTagExtendedUtil.getAllTags(myProject, gitRoot) },
                     GitBundle.message("tag.getting.existing.tags"),
                     false,
                     myProject
@@ -267,7 +267,7 @@ class GitTagExtendDialog(project: Project, roots: List<VirtualFile?>?, defaultRo
 
     companion object {
         private val LOG = Logger.getInstance(
-            GitTagExtendDialog::class.java
+            GitNewTagExtendedDialog::class.java
         )
         private val MESSAGE_FILE_PREFIX: @NonNls String? = "git-tag-message-"
         private val MESSAGE_FILE_SUFFIX: @NonNls String? = ".txt"
