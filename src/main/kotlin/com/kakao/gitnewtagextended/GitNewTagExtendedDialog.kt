@@ -156,7 +156,10 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
                 if (hasMessage) {
                     h.addParameters("-a")
                 }
-                if (myForceCheckBox!!.isEnabled && myForceCheckBox!!.isSelected) {
+
+                if (element == myTagNameComboBoxTextField!!.text && myForceCheckBox!!.isEnabled && myForceCheckBox!!.isSelected) {
+                    h.addParameters("-f")
+                } else if (element != myTagNameComboBoxTextField!!.text) {
                     h.addParameters("-f")
                 }
                 if (hasMessage) {
