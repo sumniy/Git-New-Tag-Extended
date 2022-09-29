@@ -3,7 +3,9 @@ package com.kakao.gitnewtagextended
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.VcsException
+import com.intellij.openapi.vcs.VcsNotifier
 import com.intellij.openapi.vfs.VirtualFile
+import git4idea.GitNotificationIdsHolder
 import git4idea.commands.Git
 import git4idea.commands.GitCommand
 import git4idea.commands.GitLineHandler
@@ -15,6 +17,7 @@ object GitNewTagExtendedUtil {
 
     @Throws(VcsException::class)
     fun getAllTags(project: Project, root: VirtualFile): List<String> {
+        fetchRemoteTagsBeforeGet(project, root)
         val h = GitLineHandler(project, root, GitCommand.TAG)
         h.addParameters("-l")
         h.addParameters("--sort=-creatordate")
@@ -27,5 +30,28 @@ object GitNewTagExtendedUtil {
         val result = Git.getInstance().runCommandWithoutCollectingOutput(h)
         result.throwOnError()
         return tags
+    }
+
+    private fun fetchRemoteTagsBeforeGet(project: Project, root: VirtualFile) {
+        val notifier = VcsNotifier.getInstance(project)
+        val git = Git.getInstance()
+        val h = GitLineHandler(project, root, GitCommand.FETCH)
+        h.addParameters("--tags")
+        h.addParameters("-f")
+        h.setSilent(true)
+        val result = git.runCommandWithoutCollectingOutput(h)
+        if (result.success()) {
+            notifier.notifySuccess(
+                GitNotificationIdsHolder.FETCH_SUCCESS,
+                "Fetch tags success",
+                ""
+            )
+        } else {
+            notifier.notifyError(
+                GitNotificationIdsHolder.FETCH_ERROR,
+                "Couldn't fetch tags",
+                "Error occurs while fetching tags from remote server"
+            )
+        }
     }
 }
