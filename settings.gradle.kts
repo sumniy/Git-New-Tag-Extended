@@ -1,0 +1,1 @@
+rootProject.name = "git-new-tag-extended"
