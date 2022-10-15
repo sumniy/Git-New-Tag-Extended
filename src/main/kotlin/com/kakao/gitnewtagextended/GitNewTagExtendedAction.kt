@@ -11,9 +11,6 @@ class GitNewTagExtendedAction : GitRepositoryAction() {
     /**
      * {@inheritDoc}
      */
-    //  protected String getActionName() {
-    //    return GitBundle.message("tag.action.name");
-    //  }
     override fun getActionName(): String {
         return "Git New Tag Extended"
     }
