@@ -25,3 +25,4 @@ add multiple tags at once using the Add button
 
 And it always shows the latest tag list because it fetches tags from the origin every time it runs a plugin.
 + tag list contains only the last 100 tags
++ This plug-in works only with git projects.
