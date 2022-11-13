@@ -40,6 +40,7 @@ import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JTextArea
 import javax.swing.JTextField
+import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 
 class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defaultRoot: VirtualFile?) :
@@ -61,6 +62,7 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
     private var myAddTagButton: JButton? = null
     private var myAddedTagList: JList<String>? = null
     private var tagList = DefaultListModel<String>()
+    private var currentText: String = ""
 
     init {
         title = GitBundle.message("tag.title")
@@ -82,9 +84,30 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
         fetchTags()
 
         myTagNameComboBoxTextField = myTagNameComboBox?.editor?.editorComponent as JTextField
+
+        val filterMyTagNameComboBoxModel = Runnable {
+            if (myTagNameComboBoxTextField!!.text.equals(currentText))
+                return@Runnable
+            currentText = myTagNameComboBoxTextField!!.text
+
+            myTagNameComboBox!!.hidePopup()
+
+            val filteredTags =
+                if (currentText.isEmpty())
+                    myExistingTags
+                else
+                    myExistingTags.filter { it.contains(currentText) }
+            myTagNameComboBox!!.model = DefaultComboBoxModel(filteredTags.toTypedArray())
+            myTagNameComboBoxTextField!!.text = currentText
+            myTagNameComboBox!!.selectedItem = currentText
+
+            myTagNameComboBox!!.showPopup()
+        }
+
         myTagNameComboBoxTextField!!.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 validateFields()
+                SwingUtilities.invokeLater(filterMyTagNameComboBoxModel)
             }
         })
 
