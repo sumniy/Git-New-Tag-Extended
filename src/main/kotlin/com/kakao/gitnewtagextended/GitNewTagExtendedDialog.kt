@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -85,8 +87,9 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
 
         myTagNameComboBoxTextField = myTagNameComboBox?.editor?.editorComponent as JTextField
 
+        var useFilterMyTagNameComboBoxModel = true
         val filterMyTagNameComboBoxModel = Runnable {
-            if (myTagNameComboBoxTextField!!.text.equals(currentText))
+            if (!useFilterMyTagNameComboBoxModel || myTagNameComboBoxTextField!!.text.equals(currentText))
                 return@Runnable
             currentText = myTagNameComboBoxTextField!!.text
 
@@ -117,6 +120,15 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
                 myTagNameComboBox?.showPopup()
             }
         })
+
+        myTagNameComboBoxTextField!!.addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(keyEvent: KeyEvent?) {
+                if (keyEvent != null && myTagNameComboBoxTextField!!.hasFocus())
+                    useFilterMyTagNameComboBoxModel = !listOf(KeyEvent.VK_UP, KeyEvent.VK_DOWN).contains(keyEvent.keyCode)
+                super.keyPressed(keyEvent)
+            }
+        })
+
         myAddedTagList!!.isVisible = false
         myAddTagButton!!.addActionListener {
             tagList.addElement(myTagNameComboBoxTextField!!.text)
