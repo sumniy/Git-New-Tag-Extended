@@ -18,6 +18,10 @@
     You can select and add from the list of recent tags, and you can also add multiple tags can be added at once.
   ]]></description>
 
+  <change-notes><![CDATA[
+    Add feature: filter tag list by entered tag name
+  ]]></change-notes>
+
   <!-- Product and plugin compatibility requirements.
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
   <depends>com.intellij.modules.platform</depends>
