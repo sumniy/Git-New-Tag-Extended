@@ -58,13 +58,14 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
     private var myProject: Project
     private var myGit: Git
     private var myNotifier: VcsNotifier
-    private var myExistingTags: List<String> = ArrayList()
+    private var myFilteredTagList: List<String> = ArrayList()
     private var myTagNameComboBox: ComboBox<*>? = null
     private var myTagNameComboBoxTextField: JTextField? = null
     private var myAddTagButton: JButton? = null
     private var myAddedTagList: JList<String>? = null
     private var tagList = DefaultListModel<String>()
     private var currentText: String = ""
+    private var existsTagList: List<String> = ArrayList()
 
     init {
         title = GitBundle.message("tag.title")
@@ -91,20 +92,25 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
         val filterMyTagNameComboBoxModel = Runnable {
             if (!useFilterMyTagNameComboBoxModel || myTagNameComboBoxTextField!!.text.equals(currentText))
                 return@Runnable
+
+            val isAddText = currentText.length < myTagNameComboBoxTextField!!.text.length
             currentText = myTagNameComboBoxTextField!!.text
 
-            myTagNameComboBox!!.hidePopup()
+            val model = myTagNameComboBox!!.model as DefaultComboBoxModel<String>
 
-            val filteredTags =
-                if (currentText.isEmpty())
-                    myExistingTags
-                else
-                    myExistingTags.filter { it.contains(currentText) }
-            myTagNameComboBox!!.model = DefaultComboBoxModel(filteredTags.toTypedArray())
+            if (currentText.isEmpty()) {
+                model.removeAllElements()
+                model.addAll(existsTagList)
+            } else if (isAddText) {
+                myFilteredTagList.filter { !it.contains(currentText) }
+                    .forEach { model.removeElement(it) }
+            } else {
+                model.removeAllElements()
+                model.addAll(myFilteredTagList.filter { it.contains(currentText) })
+            }
+
             myTagNameComboBoxTextField!!.text = currentText
             myTagNameComboBox!!.selectedItem = currentText
-
-            myTagNameComboBox!!.showPopup()
         }
 
         myTagNameComboBoxTextField!!.document.addDocumentListener(object : DocumentAdapter() {
@@ -237,7 +243,7 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
 
     private fun validateFields() {
         val text = myTagNameComboBoxTextField!!.text
-        if (myExistingTags.contains(text)) {
+        if (myFilteredTagList.contains(text)) {
             myForceCheckBox!!.isEnabled = true
             if (!myForceCheckBox!!.isSelected) {
                 setErrorText(GitBundle.message("tag.error.tag.exists"))
@@ -275,8 +281,9 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
                     false,
                     myProject
                 )
-            myExistingTags = tags.distinct()
-            myTagNameComboBox?.model = DefaultComboBoxModel(myExistingTags.toTypedArray())
+            myFilteredTagList = tags.distinct()
+            existsTagList = tags.distinct()
+            myTagNameComboBox?.model = DefaultComboBoxModel(myFilteredTagList.toTypedArray())
             myTagNameComboBox?.selectedItem = ""
         } catch (e: VcsException) {
             GitUIUtil.showOperationError(
