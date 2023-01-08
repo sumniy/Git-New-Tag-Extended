@@ -19,7 +19,7 @@
   ]]></description>
 
   <change-notes><![CDATA[
-    Add feature: filter tag list by entered tag name
+    Add feature: add creator and creatordate:relative information to tag list ui
   ]]></change-notes>
 
   <!-- Product and plugin compatibility requirements.
