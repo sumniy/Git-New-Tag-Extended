@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.kakao.gitnewtagextended.GitNewTagExtendedDialog">
-  <grid id="27dc6" binding="myPanel" layout-manager="GridLayoutManager" row-count="7" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="myPanel" layout-manager="GridLayoutManager" row-count="7" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="20" y="20" width="717" height="295"/>
@@ -19,7 +19,7 @@
       </component>
       <component id="b3bdd" class="javax.swing.JComboBox" binding="myGitRootComboBox" default-binding="true">
         <constraints>
-          <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <editable value="true"/>
@@ -37,7 +37,7 @@
       </component>
       <component id="5cdcf" class="javax.swing.JLabel" binding="myCurrentBranch">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value=""/>
@@ -64,7 +64,7 @@
       </component>
       <scrollpane id="14b5c" class="com.intellij.ui.components.JBScrollPane">
         <constraints>
-          <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -87,22 +87,10 @@
           <text resource-bundle="messages/GitBundle" key="tag.commit.label"/>
         </properties>
       </component>
-      <component id="6ce31" class="javax.swing.JCheckBox" binding="myForceCheckBox" default-binding="true">
-        <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="378" height="21"/>
-          </grid>
-        </constraints>
-        <properties>
-          <enabled value="false"/>
-          <text resource-bundle="messages/GitBundle" key="tag.force"/>
-          <toolTipText resource-bundle="messages/GitBundle" key="tag.force.tooltip"/>
-        </properties>
-      </component>
       <grid id="76386" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -130,8 +118,8 @@
       </grid>
       <component id="1bc55" class="com.intellij.openapi.ui.ComboBox" binding="myTagNameComboBox">
         <constraints>
-          <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="200" height="-1"/>
           </grid>
         </constraints>
         <properties>
@@ -142,7 +130,7 @@
       </component>
       <component id="cc3d8" class="javax.swing.JList" binding="myAddedTagList">
         <constraints>
-          <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="7" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false">
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="10"/>
           </grid>
         </constraints>
@@ -150,15 +138,41 @@
           <model/>
         </properties>
       </component>
-      <component id="4942" class="javax.swing.JButton" binding="myAddTagButton">
+      <grid id="76fc8" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <label value="Add Tag"/>
-          <text value="Add Tag"/>
-        </properties>
-      </component>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="bc08e" class="javax.swing.JButton" binding="myAddTagButton">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="4" fill="0" indent="0" use-parent-layout="false">
+                <preferred-size width="80" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <horizontalAlignment value="0"/>
+              <horizontalTextPosition value="0"/>
+              <label value="Add Tag"/>
+              <text value="Add Tag"/>
+            </properties>
+          </component>
+          <component id="72ca3" class="javax.swing.JCheckBox" binding="myForceCheckBox">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
+                <preferred-size width="159" height="21"/>
+              </grid>
+            </constraints>
+            <properties>
+              <enabled value="false"/>
+              <text resource-bundle="messages/GitBundle" key="tag.force"/>
+              <toolTipText resource-bundle="messages/GitBundle" key="tag.force.tooltip"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
   <inspectionSuppressions>
