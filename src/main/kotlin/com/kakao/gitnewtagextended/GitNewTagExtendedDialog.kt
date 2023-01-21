@@ -31,7 +31,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStreamWriter
-import javax.swing.DefaultComboBoxModel
+import java.util.*
 import javax.swing.DefaultListModel
 import javax.swing.JButton
 import javax.swing.JCheckBox
@@ -42,10 +42,14 @@ import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JTextArea
 import javax.swing.JTextField
-import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
+import kotlin.collections.ArrayList
 
-class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defaultRoot: VirtualFile?) :
+class GitNewTagExtendedDialog(
+    project: Project,
+    roots: List<VirtualFile?>?,
+    defaultRoot: VirtualFile?
+) :
     DialogWrapper(project, true) {
     private var myPanel: JPanel? = null
     private var myGitRootComboBox: JComboBox<Any>? = null
@@ -66,6 +70,7 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
     private var tagList = DefaultListModel<String>()
     private var currentText: String = ""
     private var existsTagList: List<GitTagExtended> = ArrayList()
+    private val gitTagExtendedComparator = GitTagExtendedComparator()
 
     init {
         title = GitBundle.message("tag.title")
@@ -87,38 +92,53 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
         fetchTags()
 
         myTagNameComboBoxTextField = myTagNameComboBox?.editor?.editorComponent as JTextField
+        myTagNameComboBoxTextField!!.text = ""
         myTagNameComboBox!!.renderer = GitTagListRenderer()
 
-        var useFilterMyTagNameComboBoxModel = true
-        val filterMyTagNameComboBoxModel = Runnable {
-            if (!useFilterMyTagNameComboBoxModel || myTagNameComboBoxTextField!!.text.equals(currentText))
-                return@Runnable
-
-            val isAddText = currentText.length < myTagNameComboBoxTextField!!.text.length
+        val selectTagName = Runnable {
             currentText = myTagNameComboBoxTextField!!.text
+        }
 
-            val model = myTagNameComboBox!!.model as DefaultComboBoxModel<GitTagExtended>
+        val filterMyTagNameComboBoxModel = Runnable {
+            val isTextNotChanged = myTagNameComboBoxTextField!!.text.equals(currentText)
+            if (isTextNotChanged) {
+                return@Runnable
+            }
+
+            val model = myTagNameComboBox!!.model as GitTagExtendedComboBoxModel<GitTagExtended>
+            val prevModelSize = model.size
+            currentText = myTagNameComboBoxTextField!!.text
+            myTagNameComboBox!!.selectedItem = myTagNameComboBoxTextField!!.text
 
             if (currentText.isEmpty()) {
                 model.removeAllElements()
                 model.addAll(existsTagList)
-            } else if (isAddText) {
-                myFilteredTagList
-                    .filter { !it.refname.contains(currentText) }
-                    .forEach { model.removeElement(it) }
             } else {
-                model.removeAllElements()
-                model.addAll(myFilteredTagList.filter { it.refname.contains(currentText) })
+                val prevTagList = model.objects
+                val nextTagList = myFilteredTagList.filter { it.refname.contains(currentText) }
+
+                if (nextTagList.size < model.size) {
+                    prevTagList.filter { !nextTagList.contains(it) }
+                        .forEach { model.removeElement(it) }
+                } else {
+                    val addModel = nextTagList.filter { !prevTagList.contains(it) }
+                    model.addAll(addModel)
+                    model.objects.sortWith(gitTagExtendedComparator)
+                }
             }
 
-            myTagNameComboBoxTextField!!.text = currentText
-            myTagNameComboBox!!.selectedItem = currentText
+            myTagNameComboBox!!.selectedItem = myTagNameComboBoxTextField!!.text
+            val nextModelSize = model.size
+            if ((prevModelSize < 8 || nextModelSize < 8) && prevModelSize != nextModelSize) {
+                // update popup ui
+                myTagNameComboBox!!.hidePopup()
+                myTagNameComboBox!!.showPopup()
+            }
         }
 
         myTagNameComboBoxTextField!!.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 validateFields()
-                SwingUtilities.invokeLater(filterMyTagNameComboBoxModel)
             }
         })
 
@@ -130,10 +150,20 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
         })
 
         myTagNameComboBoxTextField!!.addKeyListener(object : KeyAdapter() {
-            override fun keyPressed(keyEvent: KeyEvent?) {
-                if (keyEvent != null && myTagNameComboBoxTextField!!.hasFocus())
-                    useFilterMyTagNameComboBoxModel = !listOf(KeyEvent.VK_UP, KeyEvent.VK_DOWN).contains(keyEvent.keyCode)
-                super.keyPressed(keyEvent)
+            override fun keyReleased(keyEvent: KeyEvent?) {
+                if (keyEvent != null &&
+                    myTagNameComboBoxTextField!!.hasFocus() &&
+                    !listOf(
+                        KeyEvent.VK_UP,
+                        KeyEvent.VK_DOWN,
+                        KeyEvent.VK_LEFT,
+                        KeyEvent.VK_RIGHT
+                    ).contains(keyEvent.keyCode)) {
+                    filterMyTagNameComboBoxModel.run()
+                } else {
+                    selectTagName.run()
+                }
+                super.keyReleased(keyEvent)
             }
         })
 
@@ -157,7 +187,6 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
         init()
         validateFields()
     }
-
 
 
     override fun getPreferredFocusedComponent(): JComponent? {
@@ -285,7 +314,8 @@ class GitNewTagExtendedDialog(project: Project, roots: List<VirtualFile?>?, defa
                 )
             myFilteredTagList = tags.distinct()
             existsTagList = tags.distinct()
-            myTagNameComboBox?.model = DefaultComboBoxModel(myFilteredTagList.toTypedArray())
+
+            myTagNameComboBox?.model = GitTagExtendedComboBoxModel(Vector(myFilteredTagList))
             myTagNameComboBox?.selectedItem = null
         } catch (e: VcsException) {
             GitUIUtil.showOperationError(
