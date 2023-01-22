@@ -28,9 +28,9 @@ class GitTagListRenderer : JPanel(),
         font = list!!.font
 
         if (value is GitTagExtended) {
-            val _value = value.refname
+            val tagName = value.refname
             val creator = value.creator
-            val tagNameComponent = JLabel(_value, null, SwingConstants.LEFT)
+            val tagNameComponent = JLabel(tagName, null, SwingConstants.LEFT)
             val tagCreatorComponent = JLabel(creator, null, SwingConstants.LEFT)
             tagCreatorComponent.foreground = UIUtil.getInactiveTextColor()
             val tagCreatorDate = JLabel(value.creatordate, null, SwingConstants.RIGHT)
