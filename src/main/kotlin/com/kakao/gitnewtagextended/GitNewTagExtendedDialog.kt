@@ -42,6 +42,7 @@ import javax.swing.JList
 import javax.swing.JPanel
 import javax.swing.JTextArea
 import javax.swing.JTextField
+import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 import kotlin.collections.ArrayList
 
@@ -145,7 +146,7 @@ class GitNewTagExtendedDialog(
         myTagNameComboBoxTextField!!.addFocusListener(object : FocusAdapter() {
             override fun focusGained(e: FocusEvent?) {
                 super.focusGained(e)
-                myTagNameComboBox?.showPopup()
+                SwingUtilities.invokeLater { myTagNameComboBox!!.showPopup() }
             }
         })
 
