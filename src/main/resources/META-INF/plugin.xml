@@ -26,9 +26,8 @@
 
   <change-notes><![CDATA[
   <div width="350">
-    Add feature: add creator and creatordate:relative information to tag list ui
-    <br />
-    Bug fix: fixed an issue that filtering did not work properly when deleting or adding text in the middle.
+    add another default keyboard shortcut : control + shift + t (MAC)
+    exist keyboard shortcut is : command + shift + t (MAC)
   </div>
   ]]></change-notes>
 
