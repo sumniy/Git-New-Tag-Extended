@@ -15,7 +15,7 @@
        Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
   <description><![CDATA[
   <div width="350">
-    <p>
+    <<p></p>
       Add a new menu that extends the existing git new tag functionality.
       You can select and add from the list of recent tags, and you can also add multiple tags can be added at once.
       <br />
@@ -47,6 +47,7 @@
       class="com.kakao.gitnewtagextended.GitNewTagExtendedAction" text="New Tag... (Extended)"
       description="GitNewTagExtendedAction">
       <add-to-group group-id="Git.MainMenu" anchor="after" relative-to-action="Git.Tag"/>
+      <keyboard-shortcut first-keystroke="meta shift t" keymap="$default"/>
       <keyboard-shortcut first-keystroke="control shift t" keymap="$default"/>
     </action>
   </actions>
