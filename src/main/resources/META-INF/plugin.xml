@@ -14,9 +14,22 @@
        Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
        Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
   <description><![CDATA[
-    Add a new menu that extends the existing git new tag functionality.
-    You can select and add from the list of recent tags, and you can also add multiple tags can be added at once.
+  <div width="350">
+    <<p></p>
+      Add a new menu that extends the existing git new tag functionality.
+      You can select and add from the list of recent tags, and you can also add multiple tags can be added at once.
+      <br />
+    </p>
+    <img width="350" src="https://plugins.jetbrains.com/files/20045/screenshot_098d71dd-f310-46b5-8574-4ebe78bcab64" />
+  </div>
   ]]></description>
+
+  <change-notes><![CDATA[
+  <div width="350">
+    add another default keyboard shortcut : control + shift + t (MAC)
+    exist keyboard shortcut is : command + shift + t (MAC)
+  </div>
+  ]]></change-notes>
 
   <!-- Product and plugin compatibility requirements.
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
@@ -33,6 +46,7 @@
       class="com.kakao.gitnewtagextended.GitNewTagExtendedAction" text="New Tag... (Extended)"
       description="GitNewTagExtendedAction">
       <add-to-group group-id="Git.MainMenu" anchor="after" relative-to-action="Git.Tag"/>
+      <keyboard-shortcut first-keystroke="meta shift t" keymap="$default"/>
       <keyboard-shortcut first-keystroke="control shift t" keymap="$default"/>
     </action>
   </actions>
