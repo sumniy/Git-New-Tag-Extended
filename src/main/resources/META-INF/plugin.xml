@@ -26,8 +26,7 @@
 
   <change-notes><![CDATA[
   <div width="350">
-    add another default keyboard shortcut : control + shift + t (MAC)
-    exist keyboard shortcut is : command + shift + t (MAC)
+    add intellij 2023.1 version compatibility
   </div>
   ]]></change-notes>
 
