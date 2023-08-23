@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.kakao"
-version = "1.2.5"
+version = "1.2.6"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("213")
-        untilBuild.set("231.*")
+        untilBuild.set("232.*")
     }
 
     signPlugin {
